@@ -25,7 +25,7 @@ class InputSolverFile(enum.StrEnum):
     PIB = "solver.pib.in"
     SGM = "solver.sgm.in"
 
-class iQISTCalculation(abc.ABC):
+class iQISTCalculation():
     # Method and attributes to redefine by user #
     @property
     def label(self) -> str:
