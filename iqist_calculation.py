@@ -390,3 +390,9 @@ class iQISTCalculation():
                 file.readline()
                 file.readline()
         return gf_data, gf_data_err
+
+    def __str__(self) -> str:
+        msg = self.label() + "\n"
+        for key in self.parameters:
+            msg += f"{key} : {self.parameters[key]}\n"
+        return msg
