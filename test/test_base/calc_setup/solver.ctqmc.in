@@ -1,0 +1,49 @@
+!!>>> setup general control flags
+!!------------------------------------------------------------------------
+  isscf  : 2
+  issun  : 2
+  isspn  : 1
+  isbin  : 2
+  isscr  : 4
+  issus  : 24
+  isort  : 1
+  isvrt  : 1
+
+!!>>> setup common variables for quantum impurity model
+!!------------------------------------------------------------------------
+  nband  : 1
+  nspin  : 2
+  norbs  : 2
+  ncfgs  : 4
+  niter  : 40
+  t1     : 1.0
+  U      : 8.5
+  V      : 0.0001
+  Uc     : 8.5
+  Uv     : 0.00
+  Jz     : 0.00
+  Js     : 0.00
+  Jp     : 0.00
+  mune   : 4.344
+  beta   : 10.0
+  part   : 0.50
+  alpha  : 0.7
+  lc     : 0.
+
+!!>>> setup common variables for quantum impurity solver
+!!------------------------------------------------------------------------
+  mkink  : 1024
+  mfreq  : 8193
+  nfreq  : 200
+  nffrq  : 2
+  nbfrq  : 128
+  nffrq1 : 2
+  nbfrq1 : 128
+  ntime  : 8192
+  nflip  : 20000
+  ntherm : 10000000
+  nsweep : 200000000
+  nwrite : 10000000
+  nclean : 100000
+  nmonte : 100
+  ncarlo : 100
