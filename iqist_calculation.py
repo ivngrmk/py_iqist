@@ -59,8 +59,8 @@ class iQISTCalculation():
             'nmonte'      : (100,       int,   ["nmonte",]),
             'ncarlo'      : (100,       int,   ["ncarlo",]),
             # vertex calculation
-            'nffrq'       : (1,         int,   ["nffrq",]),
-            'nbfrq'       : (1,         int,   ["nbfrq",]),
+            'nffrq'       : (1,         int,   ["nffrq1",]),
+            'nbfrq'       : (1,         int,   ["nbfrq1",]),
         }
     
     @classmethod
