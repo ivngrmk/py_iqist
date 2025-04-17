@@ -40,7 +40,7 @@ class iQISTCalculation():
         """
         return {
             # parameter_name, default_value, type, tuple of labels in solver.ctqmc.in (corresponding keywords is uppercase of parameter_name)
-            'niter'       : (None,      int,   ["niter",]),
+            'niter'       : ( 10,       int,   ["niter",]),
             'tt'          : (None,      float, ["t1",]),
             'uu'          : (None,      float, ["U", "Uc"]),
             'mu'          : (None,      float, ["mune",]),
@@ -77,13 +77,14 @@ class iQISTCalculation():
     
     @classmethod
     def parse_parameters_line(cls, line : str, parameters : dict) -> str:
-        assert set(parameters.keys()) == set(cls.default_parameters())
+        structure = cls.default_parameters_structure()
+        assert set(parameters.keys()) == set(structure)
         words = cls.separate_parameters_line(line)
         if len(words) != 2:
             return line
         for parameter_key in parameters:
-            if words[0] == parameter_key:
-                parameters[parameter_key][0] = parameters[parameter_key][1](words[-1])
+            if words[0] in structure[parameter_key][2]:
+                parameters[parameter_key] = structure[parameter_key][1](words[-1])
         return line
 
     def generate_input_file(self, file_type : InputSolverFile, data : np.ndarray, beta : float, data_err : Optional[np.ndarray] = None) -> str:
@@ -243,7 +244,7 @@ class iQISTCalculation():
             raise RuntimeError("Hybridization function data is None.")
 
 
-    def __init__(self, parameters : dict, bin_path : str, template_path : str) -> None:
+    def __init__(self, parameters : dict, template_path : str, bin_path : Optional[str] = None) -> None:
         self.bin_path = bin_path
         self.template_path = template_path
 
@@ -290,11 +291,18 @@ class iQISTCalculation():
     def run(self, *args, sbatch : bool = False, **kwargs) -> None:
         """ If sbatch is False, then the script is only created but the job is not launched.
         """
+        if not os.path.isfile(self.bin_path):
+            raise RuntimeError("Binary file not found.")
+        if self.calculation_dir is None:
+            raise RuntimeError("Calculation dir was not specified.")
         job_name = self.label
         slurm = self.generate_slurm(*args, job_name=job_name, **kwargs)
         batch_script = str(slurm)
-        with open(os.path.join(self.calculation_dir,'run.sh'),'w') as f:
+        run_f_path = os.path.join(self.calculation_dir,'run.sh')
+        with open(run_f_path,'w') as f:
             f.write(batch_script)
+        if not os.path.isfile(run_f_path):
+            raise RuntimeError("Could not create run.sh .")
         if sbatch:
             slurm.sbatch()
         
@@ -307,14 +315,14 @@ class iQISTCalculation():
         return slurm
 
     @classmethod
-    def from_calculation(cls, calc_dirn : str) -> Self:
+    def from_calculation(cls, calc_dirn : str, *kargs, **kwargs) -> Self:
         # Loading parameters from calculation
         parameters = cls.default_parameters()
         with open(os.path.join(calc_dirn,InputSolverFile.CTQMC),'r') as f:
             for line in f:
                 _ = cls.parse_parameters_line(line, parameters)
         # Creating iQISTCalculation instance
-        iqist_calculation = cls(parameters)
+        iqist_calculation = cls(parameters, *kargs, **kwargs)
 
         # Reading  data from dat files corresponding to last computed iteration
         nmat_pattern = r'solver\.nmat\s*(\d+)\.dat'
@@ -346,7 +354,7 @@ class iQISTCalculation():
             return np.array((nup,ndn),dtype=float)
 
     @staticmethod
-    def get_last_file_by_pattern(self, dir_path : str, pattern : str) -> str:
+    def get_last_file_by_pattern(dir_path : str, pattern : str) -> str:
         def extract_it_number(fn, pattern):
             match = re.search(pattern, fn)
             if match:
