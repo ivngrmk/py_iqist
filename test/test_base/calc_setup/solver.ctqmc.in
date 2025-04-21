@@ -37,8 +37,8 @@
   nfreq  : 200
   nffrq  : 2
   nbfrq  : 128
-  nffrq1 : 2
-  nbfrq1 : 128
+  nffrq1 : 1
+  nbfrq1 : 1
   ntime  : 8192
   nflip  : 20000
   ntherm : 10000000

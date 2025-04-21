@@ -288,7 +288,7 @@ class iQISTCalculation():
         for input_type in InputSolverFile:
             self.write_input_file(self.calculation_dir, input_type)
 
-    def run(self, *args, sbatch : bool = False, **kwargs) -> None:
+    def run(self, *args, sbatch : bool = False, **kwargs) -> Optional[int]:
         """ If sbatch is False, then the script is only created but the job is not launched.
         """
         if not os.path.isfile(self.bin_path):
@@ -304,10 +304,14 @@ class iQISTCalculation():
         if not os.path.isfile(run_f_path):
             raise RuntimeError("Could not create run.sh .")
         if sbatch:
-            slurm.sbatch()
+            job_id = slurm.sbatch()
+            return job_id
         
-    def generate_slurm(self, cpus_per_task : int, nodes : int, job_name : str, partition = "mpi", output = '1.o') -> Slurm:
-        slurm = Slurm(job_name = job_name, cpus_per_task = cpus_per_task, nodes = nodes, partition = partition, output = output)
+    def generate_slurm(self, cpus_per_task : int, nodes : int, job_name : str, partition = "mpi", output = '1.o' ,dependency : Optional[int] = None) -> Slurm:
+        if not dependency is None:
+            slurm = Slurm(job_name = job_name, cpus_per_task = cpus_per_task, nodes = nodes, partition = partition, output = output, dependency=dict(afterok=dependency))
+        else:
+            slurm = Slurm(job_name = job_name, cpus_per_task = cpus_per_task, nodes = nodes, partition = partition, output = output)
         slurm.add_cmd("module purge")
         slurm.add_cmd("module load mpi/impi-5.0.3")
         slurm.add_cmd("module load intel/mkl-11.2.3")
